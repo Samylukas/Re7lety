@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Red Sea Adventures & Transfers</title>
-  <link rel="stylesheet" href="style.css?v=2.0">
+  <title>Re7lety - Red Sea Excursions & Airport Transfers</title>
+  <link rel="stylesheet" href="style.css?v=3.0">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,7 +13,7 @@
   <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="logo">
-      <i class="fa-solid fa-compass"></i> RedSeaExcursions
+      <i class="fa-solid fa-plane-departure"></i> Re7lety
     </div>
     <div class="nav-links">
       <button class="login-btn" id="loginNavBtn" onclick="openLoginModal()">
@@ -25,26 +25,26 @@
     </div>
   </nav>
 
-  <!-- Hero Banner with Glassmorphism -->
+  <!-- Hero Header -->
   <header class="hero">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <span class="badge"><i class="fa-solid fa-sun"></i> Explore Paradise</span>
+      <span class="badge"><i class="fa-solid fa-compass"></i> Re7lety Travel Hub</span>
       <h1>Marsa Alam & El Quseir</h1>
-      <p>Luxury Diving, Sea Excursions & Airport Transfers</p>
+      <p>Airport Transfers, Marine Excursions & Desert Safaris</p>
     </div>
   </header>
 
-  <!-- Filter Buttons -->
+  <!-- Filter Bar -->
   <section class="container">
     <div class="filters">
       <button class="filter-btn active" onclick="filterTrips('all')"><i class="fa-solid fa-globe"></i> All</button>
-      <button class="filter-btn" onclick="filterTrips('بحري')"><i class="fa-solid fa-ship"></i> Marine</button>
-      <button class="filter-btn" onclick="filterTrips('سفاري')"><i class="fa-solid fa-person-hiking"></i> Safari</button>
-      <button class="filter-btn" onclick="filterTrips('غوص')"><i class="fa-solid fa-water"></i> Diving</button>
-      <button class="filter-btn" onclick="filterTrips('ثقافي')"><i class="fa-solid fa-landmark"></i> Cultural</button>
-      <button class="filter-btn" onclick="filterTrips('توصيلات')"><i class="fa-solid fa-taxi"></i> Transfers</button>
-      <button class="filter-btn" onclick="filterTrips('باقات')"><i class="fa-solid fa-box-open"></i> Packages</button>
+      <button class="filter-btn" onclick="filterTrips('transfers')"><i class="fa-solid fa-taxi"></i> Airport Transfers</button>
+      <button class="filter-btn" onclick="filterTrips('marine')"><i class="fa-solid fa-ship"></i> Marine</button>
+      <button class="filter-btn" onclick="filterTrips('safari')"><i class="fa-solid fa-person-hiking"></i> Safari</button>
+      <button class="filter-btn" onclick="filterTrips('diving')"><i class="fa-solid fa-water"></i> Diving</button>
+      <button class="filter-btn" onclick="filterTrips('cultural')"><i class="fa-solid fa-landmark"></i> Cultural</button>
+      <button class="filter-btn" onclick="filterTrips('packages')"><i class="fa-solid fa-box-open"></i> Packages</button>
     </div>
 
     <!-- Cards Container -->
@@ -65,12 +65,12 @@
       
       <div class="dash-controls">
         <div class="control-group">
-          <label><i class="fa-regular fa-calendar"></i> Date:</label>
+          <label><i class="fa-regular fa-calendar"></i> Service Date:</label>
           <input type="date" id="dashDateFilter" onchange="loadDashboardData()">
         </div>
         <div class="control-group">
-          <label><i class="fa-solid fa-list-check"></i> Excursion:</label>
-          <select id="dashTripFilter" onchange="loadDashboardData()"><option value="">All Excursions</option></select>
+          <label><i class="fa-solid fa-list-check"></i> Service Type:</label>
+          <select id="dashTripFilter" onchange="loadDashboardData()"><option value="">All Services</option></select>
         </div>
         <button class="action-btn" onclick="loadDashboardData()"><i class="fa-solid fa-rotate"></i> Refresh</button>
       </div>
@@ -80,14 +80,14 @@
           <i class="fa-solid fa-bookmark card-icon"></i>
           <div>
             <h3 id="totalBookings">0</h3>
-            <p>Total Bookings</p>
+            <p>Total Reservations</p>
           </div>
         </div>
         <div class="card">
           <i class="fa-solid fa-users card-icon"></i>
           <div>
             <h3 id="totalGuests">0</h3>
-            <p>Total Guests</p>
+            <p>Total Passengers</p>
           </div>
         </div>
       </div>
@@ -96,13 +96,13 @@
         <table id="bookingsTable">
           <thead>
             <tr>
-              <th>Submitted</th>
+              <th>Timestamp</th>
               <th>Guest Name</th>
-              <th>WhatsApp / Phone</th>
-              <th>Excursion Title</th>
-              <th>Service Date</th>
+              <th>WhatsApp / Mobile</th>
+              <th>Service Title</th>
+              <th>Travel Date</th>
               <th>Guests</th>
-              <th>Notes</th>
+              <th>Hotel / Flight Details</th>
             </tr>
           </thead>
           <tbody id="bookingsTableBody"></tbody>
@@ -111,11 +111,11 @@
     </div>
   </section>
 
-  <!-- Guest Booking Modal -->
+  <!-- Guest Reservation Modal -->
   <div id="booking-modal" class="modal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeModal('booking-modal')">&times;</span>
-      <h2 id="modal-trip-title"><i class="fa-solid fa-calendar-plus"></i> Book Experience</h2>
+      <h2 id="modal-trip-title"><i class="fa-solid fa-calendar-plus"></i> Book Service</h2>
       <form id="booking-form" onsubmit="submitBooking(event)">
         <input type="hidden" id="trip-title-input">
         <div class="form-group">
@@ -127,18 +127,18 @@
           <input type="tel" id="phone" required placeholder="+20 10x xxx xxxx">
         </div>
         <div class="form-group">
-          <label>Preferred Date</label>
+          <label>Date of Service / Flight Arrival</label>
           <input type="date" id="trip-date" required>
         </div>
         <div class="form-group">
-          <label>Guests Count</label>
+          <label>Number of Guests / Passengers</label>
           <input type="number" id="guests" min="1" value="1" required>
         </div>
         <div class="form-group">
-          <label>Notes / Pickup Location</label>
-          <textarea id="notes" rows="3" placeholder="Hotel name, room number, or special requests"></textarea>
+          <label>Hotel Name / Flight Number & Notes</label>
+          <textarea id="notes" rows="3" placeholder="Hotel name, room number, or flight details"></textarea>
         </div>
-        <button type="submit" id="submit-btn" class="submit-btn">Confirm Reservation</button>
+        <button type="submit" id="submit-btn" class="submit-btn">Confirm Booking</button>
       </form>
     </div>
   </div>
@@ -147,7 +147,7 @@
   <div id="login-modal" class="modal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeModal('login-modal')">&times;</span>
-      <h2><i class="fa-solid fa-shield-halved"></i> Staff Access</h2>
+      <h2><i class="fa-solid fa-shield-halved"></i> Re7lety Staff Portal</h2>
       <form onsubmit="handleLogin(event)">
         <div class="form-group">
           <label>Username</label>
@@ -157,11 +157,11 @@
           <label>Password</label>
           <input type="password" id="loginPassword" required>
         </div>
-        <button type="submit" class="submit-btn">Authenticate</button>
+        <button type="submit" class="submit-btn">Sign In</button>
       </form>
     </div>
   </div>
 
-  <script src="main.js?v=2.0"></script>
+  <script src="main.js?v=3.0"></script>
 </body>
 </html>
