@@ -1,1 +1,73 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>حجز الرحلات السياحية</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+  <!-- الهيدر والترويسة -->
+  <header>
+    <h1>رحلاتي - Travel Booking</h1>
+    <p>اختر رحلتك المفضلة واحجز بسهولة</p>
+  </header>
+
+  <!-- أزرار الفلترة حسب التصنيف -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterTrips('all')">الكل</button>
+    <button class="filter-btn" onclick="filterTrips('بحري')">رحلات بحرية</button>
+    <button class="filter-btn" onclick="filterTrips('سفاري')">سفاري</button>
+    <button class="filter-btn" onclick="filterTrips('ثقافي')">ثقافية وتاريخية</button>
+  </div>
+
+  <!-- شبكة عرض الرحلات -->
+  <main>
+    <div id="trips-container" class="trips-grid">
+      <p class="loading">جاري تحميل الرحلات...</p>
+    </div>
+  </main>
+
+  <!-- نافذة الحجز (Modal / Pop-up) -->
+  <div id="booking-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h2 id="modal-trip-title">حجز رحلة</h2>
+      
+      <form id="booking-form" onsubmit="submitBooking(event)">
+        <input type="hidden" id="trip-title-input">
+
+        <div class="form-group">
+          <label for="name">الاسم بالكامل:</label>
+          <input type="text" id="name" required placeholder="أدخل اسمك">
+        </div>
+
+        <div class="form-group">
+          <label for="phone">رقم الهاتف / الواتساب:</label>
+          <input type="tel" id="phone" required placeholder="010xxxxxxxx">
+        </div>
+
+        <div class="form-group">
+          <label for="trip-date">تاريخ الرحلة:</label>
+          <input type="date" id="trip-date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="guests">عدد الأفراد:</label>
+          <input type="number" id="guests" min="1" value="1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="notes">ملاحظات إضافية (اختياري):</label>
+          <textarea id="notes" rows="3" placeholder="مثل مكان الإقليم أو أي طلبات خاصة"></textarea>
+        </div>
+
+        <button type="submit" id="submit-btn" class="submit-btn">تأكيد الحجز</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
