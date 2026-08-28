@@ -1,69 +1,139 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>حجز الرحلات السياحية</title>
+  <title>Red Sea Adventures & Transfers</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- الهيدر والترويسة -->
-  <header>
-    <h1>رحلاتي - Travel Booking</h1>
-    <p>اختر رحلتك المفضلة واحجز بسهولة</p>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">RedSeaExcursions</div>
+    <div class="nav-links">
+      <button class="login-btn" id="loginNavBtn" onclick="openLoginModal()">Staff Login</button>
+      <button class="logout-btn" id="logoutNavBtn" onclick="logout()" style="display:none;">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Hero Header -->
+  <header class="hero">
+    <h1>Explore Marsa Alam & El Quseir</h1>
+    <p>Premium Diving, Excursions, and Airport Transfers</p>
   </header>
 
-  <!-- أزرار الفلترة حسب التصنيف -->
+  <!-- Filter Bar -->
   <div class="filters">
-    <button class="filter-btn active" onclick="filterTrips('all')">الكل</button>
-    <button class="filter-btn" onclick="filterTrips('بحري')">رحلات بحرية</button>
-    <button class="filter-btn" onclick="filterTrips('سفاري')">سفاري</button>
-    <button class="filter-btn" onclick="filterTrips('ثقافي')">ثقافية وتاريخية</button>
+    <button class="filter-btn active" onclick="filterTrips('all')">All</button>
+    <button class="filter-btn" onclick="filterTrips('بحري')">Marine & Boats</button>
+    <button class="filter-btn" onclick="filterTrips('سفاري')">Safari</button>
+    <button class="filter-btn" onclick="filterTrips('غوص')">Diving</button>
+    <button class="filter-btn" onclick="filterTrips('ثقافي')">City Tours</button>
+    <button class="filter-btn" onclick="filterTrips('توصيلات')">Airport Transfers</button>
+    <button class="filter-btn" onclick="filterTrips('باقات')">Packages</button>
   </div>
 
-  <!-- شبكة عرض الرحلات -->
+  <!-- Trips Grid Container -->
   <main>
     <div id="trips-container" class="trips-grid">
-      <p class="loading">جاري تحميل الرحلات...</p>
+      <p class="loading">Loading experiences...</p>
+    </div>
+
+    <!-- Dashboard (Visible only after staff login) -->
+    <div id="dashboard" class="dashboard" style="display:none;">
+      <h2 id="welcomeUser">Staff Dashboard</h2>
+      
+      <!-- Filters for Dashboard Reports -->
+      <div class="dash-controls">
+        <label>Date: <input type="date" id="dashDateFilter" onchange="loadDashboardData()"></label>
+        <label>Trip: <select id="dashTripFilter" onchange="loadDashboardData()"><option value="">All Trips</option></select></label>
+        <button class="action-btn" onclick="loadDashboardData()">Refresh Data</button>
+        <button class="action-btn print-btn" id="exportBtn" onclick="window.print()">Export Report</button>
+      </div>
+
+      <!-- Report Summary (Admin Only) -->
+      <div id="adminSummary" class="stats-cards" style="display:none;">
+        <div class="card">
+          <h3 id="totalBookings">0</h3>
+          <p>Total Bookings</p>
+        </div>
+        <div class="card">
+          <h3 id="totalGuests">0</h3>
+          <p>Total Guests</p>
+        </div>
+      </div>
+
+      <!-- Bookings Table -->
+      <div class="table-wrapper">
+        <table id="bookingsTable">
+          <thead>
+            <tr>
+              <th>Date Submitted</th>
+              <th>Guest Name</th>
+              <th>Phone / WhatsApp</th>
+              <th>Trip Title</th>
+              <th>Trip Date</th>
+              <th>Guests</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsTableBody">
+            <!-- Dynamic Data -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </main>
 
-  <!-- نافذة الحجز (Modal / Pop-up) -->
+  <!-- Guest Booking Modal -->
   <div id="booking-modal" class="modal">
     <div class="modal-content">
-      <span class="close-btn" onclick="closeModal()">&times;</span>
-      <h2 id="modal-trip-title">حجز رحلة</h2>
-      
+      <span class="close-btn" onclick="closeModal('booking-modal')">&times;</span>
+      <h2 id="modal-trip-title">Book Experience</h2>
       <form id="booking-form" onsubmit="submitBooking(event)">
         <input type="hidden" id="trip-title-input">
-
         <div class="form-group">
-          <label for="name">الاسم بالكامل:</label>
-          <input type="text" id="name" required placeholder="أدخل اسمك">
+          <label>Full Name:</label>
+          <input type="text" id="name" required placeholder="John Doe">
         </div>
-
         <div class="form-group">
-          <label for="phone">رقم الهاتف / الواتساب:</label>
-          <input type="tel" id="phone" required placeholder="010xxxxxxxx">
+          <label>Phone / WhatsApp:</label>
+          <input type="tel" id="phone" required placeholder="+20 10x xxx xxxx">
         </div>
-
         <div class="form-group">
-          <label for="trip-date">تاريخ الرحلة:</label>
+          <label>Trip Date:</label>
           <input type="date" id="trip-date" required>
         </div>
-
         <div class="form-group">
-          <label for="guests">عدد الأفراد:</label>
+          <label>Number of Guests:</label>
           <input type="number" id="guests" min="1" value="1" required>
         </div>
-
         <div class="form-group">
-          <label for="notes">ملاحظات إضافية (اختياري):</label>
-          <textarea id="notes" rows="3" placeholder="مثل مكان الإقليم أو أي طلبات خاصة"></textarea>
+          <label>Notes / Pickup Location:</label>
+          <textarea id="notes" rows="3" placeholder="Hotel name, flight number, or special requests"></textarea>
         </div>
+        <button type="submit" id="submit-btn" class="submit-btn">Confirm Booking</button>
+      </form>
+    </div>
+  </div>
 
-        <button type="submit" id="submit-btn" class="submit-btn">تأكيد الحجز</button>
+  <!-- Staff Login Modal -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('login-modal')">&times;</span>
+      <h2>Staff Login</h2>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Username:</label>
+          <input type="text" id="loginUsername" required>
+        </div>
+        <div class="form-group">
+          <label>Password:</label>
+          <input type="password" id="loginPassword" required>
+        </div>
+        <button type="submit" class="submit-btn">Login</button>
       </form>
     </div>
   </div>
