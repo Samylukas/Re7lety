@@ -16,13 +16,17 @@ function fetchTrips() {
         renderTrips(allTrips);
         populateTripDropdown(allTrips);
       } else {
-        document.getElementById("trips-container").innerHTML = "<p>Failed to load data from server.</p>";
+        showError("Unable to retrieve excursions.");
       }
     })
     .catch(error => {
       console.error("Error:", error);
-      document.getElementById("trips-container").innerHTML = "<p>Connection failed. Please refresh.</p>";
+      showError("Connection timeout. Please refresh.");
     });
+}
+
+function showError(msg) {
+  document.getElementById("trips-container").innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #f87171; font-size: 18px;">${msg}</p>`;
 }
 
 function renderTrips(trips) {
@@ -30,20 +34,24 @@ function renderTrips(trips) {
   container.innerHTML = "";
 
   if (!trips || trips.length === 0) {
-    container.innerHTML = "<p>No trips available at the moment.</p>";
+    container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #94a3b8; font-size: 18px;">No experiences found in this category.</p>`;
     return;
   }
 
   trips.forEach(trip => {
     container.innerHTML += `
       <div class="trip-card">
-        <img src="${trip.image || 'https://via.placeholder.com/300'}" alt="${trip.title}">
-        <div class="trip-info">
+        <div class="card-img-wrapper">
           <span class="trip-tag">${trip.category}</span>
+          <img src="${trip.image || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e'}" alt="${trip.title}">
+        </div>
+        <div class="trip-info">
           <h3>${trip.title}</h3>
-          <p style="font-size: 13px; color: #64748b; margin-top: 6px;">${trip.description}</p>
-          <div class="trip-price">${trip.price} EGP</div>
-          <button onclick="openBookingModal('${trip.title}')">Book Now</button>
+          <p>${trip.description || 'Experience the best of the Red Sea coast with guided professionals.'}</p>
+          <div class="card-footer">
+            <div class="trip-price">$${trip.price} <span style="font-size:12px; font-weight:normal; color:#94a3b8;">/ person</span></div>
+            <button class="book-btn" onclick="openBookingModal('${trip.title}')">Book Now</button>
+          </div>
         </div>
       </div>
     `;
@@ -52,9 +60,10 @@ function renderTrips(trips) {
 
 function filterTrips(category) {
   document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-  if (event && event.target) {
-    event.target.classList.add('active');
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
   }
+
   if (category === 'all') {
     renderTrips(allTrips);
   } else {
@@ -65,11 +74,11 @@ function filterTrips(category) {
 
 function getArabicCategory(cat) {
   const map = {
-    'Marine & Boats': 'بحري',
+    'Marine': 'بحري',
     'Safari': 'سفاري',
     'Diving': 'غوص',
-    'City Tours': 'ثقافي',
-    'Airport Transfers': 'توصيلات',
+    'Cultural': 'ثقافي',
+    'Transfers': 'توصيلات',
     'Packages': 'باقات'
   };
   return map[cat] || cat;
@@ -102,10 +111,10 @@ function handleLogin(e) {
         closeModal('login-modal');
         setupDashboard();
       } else {
-        alert("Invalid Username or Password");
+        alert("Invalid credentials.");
       }
     })
-    .catch(() => alert("Login failed. Check server connection."));
+    .catch(() => alert("Authentication server unavailable."));
 }
 
 function setupDashboard() {
@@ -130,7 +139,7 @@ function logout() {
 function populateTripDropdown(trips) {
   const select = document.getElementById("dashTripFilter");
   if (!select) return;
-  select.innerHTML = '<option value="">All Trips</option>';
+  select.innerHTML = '<option value="">All Excursions</option>';
   trips.forEach(t => {
     select.innerHTML += `<option value="${t.title}">${t.title}</option>`;
   });
@@ -188,7 +197,7 @@ function submitBooking(e) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bookingData)
   }).then(() => {
-    alert("Booking Submitted Successfully!");
+    alert("Reservation Request Sent Successfully!");
     closeModal('booking-modal');
     document.getElementById("booking-form").reset();
   });
