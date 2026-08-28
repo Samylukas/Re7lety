@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Re7lety - Red Sea Excursions & Airport Transfers</title>
+  <link rel="stylesheet" href="style.css?v=3.0">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">
+      <i class="fa-solid fa-plane-departure"></i> Re7lety
+    </div>
+    <div class="nav-links">
+      <button class="login-btn" id="loginNavBtn" onclick="openLoginModal()">
+        <i class="fa-solid fa-user-lock"></i> Staff Login
+      </button>
+      <button class="logout-btn" id="logoutNavBtn" onclick="logout()" style="display:none;">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Header -->
+  <header class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <span class="badge"><i class="fa-solid fa-compass"></i> Re7lety Travel Hub</span>
+      <h1>Marsa Alam & El Quseir</h1>
+      <p>Airport Transfers, Marine Excursions & Desert Safaris</p>
+    </div>
+  </header>
+
+  <!-- Filter Bar -->
+  <section class="container">
+    <div class="filters">
+      <button class="filter-btn active" onclick="filterTrips('all')"><i class="fa-solid fa-globe"></i> All</button>
+      <button class="filter-btn" onclick="filterTrips('transfers')"><i class="fa-solid fa-taxi"></i> Airport Transfers</button>
+      <button class="filter-btn" onclick="filterTrips('marine')"><i class="fa-solid fa-ship"></i> Marine</button>
+      <button class="filter-btn" onclick="filterTrips('safari')"><i class="fa-solid fa-person-hiking"></i> Safari</button>
+      <button class="filter-btn" onclick="filterTrips('diving')"><i class="fa-solid fa-water"></i> Diving</button>
+      <button class="filter-btn" onclick="filterTrips('cultural')"><i class="fa-solid fa-landmark"></i> Cultural</button>
+      <button class="filter-btn" onclick="filterTrips('packages')"><i class="fa-solid fa-box-open"></i> Packages</button>
+    </div>
+
+    <!-- Cards Container -->
+    <div id="trips-container" class="trips-grid">
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    </div>
+
+    <!-- Staff Dashboard -->
+    <div id="dashboard" class="dashboard" style="display:none;">
+      <div class="dash-header">
+        <h2 id="welcomeUser"><i class="fa-solid fa-chart-line"></i> Staff Dashboard</h2>
+        <button class="action-btn print-btn" id="exportBtn" onclick="window.print()">
+          <i class="fa-solid fa-print"></i> Export Report
+        </button>
+      </div>
+      
+      <div class="dash-controls">
+        <div class="control-group">
+          <label><i class="fa-regular fa-calendar"></i> Service Date:</label>
+          <input type="date" id="dashDateFilter" onchange="loadDashboardData()">
+        </div>
+        <div class="control-group">
+          <label><i class="fa-solid fa-list-check"></i> Service Type:</label>
+          <select id="dashTripFilter" onchange="loadDashboardData()"><option value="">All Services</option></select>
+        </div>
+        <button class="action-btn" onclick="loadDashboardData()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      </div>
+
+      <div id="adminSummary" class="stats-cards" style="display:none;">
+        <div class="card">
+          <i class="fa-solid fa-bookmark card-icon"></i>
+          <div>
+            <h3 id="totalBookings">0</h3>
+            <p>Total Reservations</p>
+          </div>
+        </div>
+        <div class="card">
+          <i class="fa-solid fa-users card-icon"></i>
+          <div>
+            <h3 id="totalGuests">0</h3>
+            <p>Total Passengers</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table id="bookingsTable">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Guest Name</th>
+              <th>WhatsApp / Mobile</th>
+              <th>Service Title</th>
+              <th>Travel Date</th>
+              <th>Guests</th>
+              <th>Hotel / Flight Details</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Guest Reservation Modal -->
+  <div id="booking-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('booking-modal')">&times;</span>
+      <h2 id="modal-trip-title"><i class="fa-solid fa-calendar-plus"></i> Book Service</h2>
+      <form id="booking-form" onsubmit="submitBooking(event)">
+        <input type="hidden" id="trip-title-input">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="name" required placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label>WhatsApp / Mobile Phone</label>
+          <input type="tel" id="phone" required placeholder="+20 10x xxx xxxx">
+        </div>
+        <div class="form-group">
+          <label>Date of Service / Flight Arrival</label>
+          <input type="date" id="trip-date" required>
+        </div>
+        <div class="form-group">
+          <label>Number of Guests / Passengers</label>
+          <input type="number" id="guests" min="1" value="1" required>
+        </div>
+        <div class="form-group">
+          <label>Hotel Name / Flight Number & Notes</label>
+          <textarea id="notes" rows="3" placeholder="Hotel name, room number, or flight details"></textarea>
+        </div>
+        <button type="submit" id="submit-btn" class="submit-btn">Confirm Booking</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Staff Login Modal -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('login-modal')">&times;</span>
+      <h2><i class="fa-solid fa-shield-halved"></i> Re7lety Staff Portal</h2>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="loginUsername" required placeholder="admin / coord">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" required>
+        </div>
+        <button type="submit" class="submit-btn">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="main.js?v=3.0"></script>
+</body>
+</html>
