@@ -1,6 +1,5 @@
 // ضع رابط الـ Web App الخاص بك هنا
-const API_URL = "https://script.google.com/macros/s/AKfycbwfBT_DhKiJbGccL1wXuQ2Zju-FSZY4aiq6ibng-in8WQ-CNRKWltOccopNjGIA-GvWrA/exec";
-
+const API_URL = "https://script.google.com/macros/s/AKfycbwEUJdsuEmOvlBETHJVxGjYGOaLgWVbdnF_xKvS-zaeJV6gnHUNpwdlF-H-0URO9aneQQ/exec";
 let allTrips = [];
 
 // جلب الرحلات عند فتح الصفحة
