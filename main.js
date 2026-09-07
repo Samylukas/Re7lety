@@ -1,9 +1,9 @@
 // =========================================================================
-// Re7lety Platform - Main Dynamic Logic with Maps, Limos & WhatsApp
+// Re7lety Platform - Main Integrated Logic
 // =========================================================================
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwr-LoCPIygEglH2Kvpo5I7sqRKtQm73ilrgBkiiBqhNZuyaxZVu9wD5D9wozB0xp-2Zg/exec";
-const COMPANY_WHATSAPP = "201000000000"; // رقم واتساب الشركة لاستقبال الحجوزات
+const API_URL = "https://script.google.com/macros/s/AKfycbyRv5Jayl2Ky2QZKfe16THx5Xrq7LjaeBtehoY2T37VtE4P9M4Hoguc_wSC2BTSNUuv6w/exec";
+const COMPANY_WHATSAPP = "201000000000"; // استبدل برقم واتساب الشركة بدون مفتاح +
 
 let allTrips = [];
 let currentUser = null;
@@ -39,7 +39,7 @@ function showError(msg) {
   }
 }
 
-// بناء عرض كروت الليموزين الفاخرة ورابط الخرائط الجغرافي
+// عرض كروت الليموزين ورابط الخريطة الجغرافي
 function renderTrips(trips) {
   const container = document.getElementById("trips-container");
   if (!container) return;
@@ -50,7 +50,6 @@ function renderTrips(trips) {
     return;
   }
 
-  // رابط صورة ليموزين وسائق وسلسلة ساحلية راقية تتماشى مع البحر الصحراوي
   const luxuryLimoImg = "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=800&auto=format&fit=crop";
 
   trips.forEach(trip => {
@@ -61,7 +60,6 @@ function renderTrips(trips) {
     const price = trip.Price || "0";
     const description = trip.Description || "Reliable scheduled transfer service.";
 
-    // رابط خرائط جوجل الجغرافي لفتح خط السير تلقائياً
     const routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(pickup)}&destination=${encodeURIComponent(dropoff)}`;
 
     container.innerHTML += `
@@ -192,7 +190,6 @@ function populateTripDropdown(trips) {
   });
 }
 
-// عرض البيانات الحقيقية بالكامل في اللوحة والتقرير
 function loadDashboardData() {
   const url = `${API_URL}?action=getBookings&t=${new Date().getTime()}`;
 
@@ -234,7 +231,6 @@ function loadDashboardData() {
     });
 }
 
-// معالجة الحجز وإرسال وتأكيد الرسالة عبر الواتساب تلقائياً
 function submitBooking(e) {
   e.preventDefault();
   const tripId = document.getElementById("trip-title-input").value;
@@ -263,7 +259,6 @@ function submitBooking(e) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bookingData)
   }).then(() => {
-    // فتح الواتساب بنص التأكيد المباشر
     const waText = `*New Reservation Request - Re7lety*%0A` +
                    `*Name:* ${encodeURIComponent(passengerName)}%0A` +
                    `*Phone:* ${encodeURIComponent(passengerPhone)}%0A` +
