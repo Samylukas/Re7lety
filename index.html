@@ -32,7 +32,7 @@
       overflow-x: hidden;
     }
 
-    /* Navbar */
+    /* Header & Navigation */
     .navbar {
       position: fixed;
       top: 0;
@@ -77,7 +77,7 @@
       gap: 8px;
     }
 
-    /* Hero Section - Diver Background Restored */
+    /* Hero Diver Background */
     .hero-section {
       position: relative;
       padding: 140px 20px 60px;
@@ -105,7 +105,6 @@
       font-weight: 800;
       margin-bottom: 10px;
       color: #fff;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
 
     .hero-content p {
@@ -114,7 +113,7 @@
       margin-bottom: 30px;
     }
 
-    /* Filters Bar Horizontal */
+    /* Horizontal Filter Bar */
     .filter-bar {
       display: flex !important;
       flex-direction: row !important;
@@ -150,7 +149,7 @@
       color: #000;
     }
 
-    /* Main Container & Grid */
+    /* Cards Layout */
     .main-container {
       max-width: 1200px;
       margin: 0 auto;
@@ -195,6 +194,28 @@
       font-weight: 700;
     }
 
+    .map-btn-link {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--accent-cyan);
+      border: 1px solid var(--border-glass);
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .map-btn-link:hover {
+      background: var(--accent-cyan);
+      color: #000;
+    }
+
     .trip-info {
       padding: 20px;
     }
@@ -234,7 +255,7 @@
       cursor: pointer;
     }
 
-    /* Dashboard & Table */
+    /* Staff Dashboard & Tables */
     .dashboard-section {
       background: var(--bg-card);
       border: 1px solid var(--border-glass);
@@ -310,7 +331,7 @@
       cursor: pointer;
     }
 
-    /* Print Style Optimization - DATA ONLY NO IMAGES */
+    /* Optimized Print Style (Text & Tables Only) */
     @media print {
       body {
         background: #fff !important;
@@ -361,14 +382,13 @@
     </div>
   </nav>
 
-  <!-- Hero Section (Diver Background) -->
+  <!-- Hero Section -->
   <header class="hero-section">
     <div class="hero-content">
       <span class="badge"><i class="fa-solid fa-plane-departure"></i> SMART MOBILITY HUB</span>
       <h1>Marsa Alam & El Quseir</h1>
       <p>Scheduled Airport Transfers, Fleet Services & Private Excursions</p>
       
-      <!-- Filter Controls -->
       <div class="filter-bar">
         <button class="filter-btn active" onclick="filterTrips('all')">
           <i class="fa-solid fa-globe"></i> All Services
@@ -389,23 +409,22 @@
     </div>
   </header>
 
-  <!-- Main Content Container -->
+  <!-- Main Grid Content -->
   <main class="main-container">
     
-    <!-- Scheduled Trips Grid -->
     <section id="trips-container" class="trips-grid">
-      <!-- Cards rendered dynamically via main.js -->
+      <!-- Dynamic Trip Cards Rendered via JS -->
     </section>
 
-    <!-- Staff Dashboard -->
+    <!-- Staff Portal Table & Metrics -->
     <section id="dashboard" class="dashboard-section" style="display: none; margin-top: 50px;">
       <div class="dashboard-header">
         <div>
           <h2 id="welcomeUser">Welcome, Staff Member</h2>
           <p style="color: #94a3b8; font-size: 14px;">Real-time Fleet Operations & Booking Management</p>
         </div>
-        <button class="book-btn" onclick="window.print()">
-          <i class="fa-solid fa-print"></i> Export Report
+        <button class="book-btn export-btn" onclick="window.print()">
+          <i class="fa-solid fa-print"></i> Export Data Report
         </button>
       </div>
 
@@ -440,7 +459,7 @@
             </tr>
           </thead>
           <tbody id="bookingsTableBody">
-            <!-- Data populated dynamically via main.js -->
+            <!-- Dynamic Booking Rows Rendered via JS -->
           </tbody>
         </table>
       </div>
@@ -448,7 +467,7 @@
 
   </main>
 
-  <!-- Customer Booking Modal -->
+  <!-- Booking Form Modal with WhatsApp -->
   <div id="booking-modal" class="modal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeModal('booking-modal')">&times;</span>
@@ -459,7 +478,7 @@
         
         <div style="margin-top: 15px;">
           <label style="font-size: 13px; color: #94a3b8;">Full Name</label>
-          <input type="text" id="passenger-name" placeholder="e.g. Ahmed Ali" required style="width: 100%; padding: 12px; margin-top: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4); color: #fff;">
+          <input type="text" id="passenger-name" placeholder="e.g. Ahmed Hassan" required style="width: 100%; padding: 12px; margin-top: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4); color: #fff;">
         </div>
 
         <div style="margin-top: 15px;">
@@ -473,8 +492,8 @@
         </div>
 
         <div style="margin-top: 15px;">
-          <label style="font-size: 13px; color: #94a3b8;">Special Requests / Pickup Details</label>
-          <textarea id="notes" rows="3" placeholder="Hotel name, flight details..." style="width: 100%; padding: 12px; margin-top: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4); color: #fff;"></textarea>
+          <label style="font-size: 13px; color: #94a3b8;">Pickup Address / Hotel / Special Requests</label>
+          <textarea id="notes" rows="3" placeholder="Hotel Name, Room No, Flight details..." style="width: 100%; padding: 12px; margin-top: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4); color: #fff;"></textarea>
         </div>
 
         <button type="submit" class="book-btn" style="width: 100%; padding: 14px; margin-top: 20px; font-size: 16px; background: #25D366; color: #fff;">
@@ -484,7 +503,7 @@
     </div>
   </div>
 
-  <!-- Staff Login Modal -->
+  <!-- Staff Portal Modal -->
   <div id="login-modal" class="modal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeModal('login-modal')">&times;</span>
