@@ -1,36 +1,49 @@
-const API_URL = "ضع_الرابط_الجديد_هنا";
+// =========================================================================
+// Re7lety Platform - Frontend Integration Logic
+// =========================================================================
+
+// ضع رابط الـ Web App الخاص بك هنا
+const API_URL = "https://script.google.com/macros/s/AKfycbwEUJdsuEmOvlBETHJVxGjYGOaLgWVbdnF_xKvS-zaeJV6gnHUNpwdlF-H-0URO9aneQQ/exec";
 
 let allTrips = [];
 let currentUser = null;
 
+// تشغيل النظام فور تحميل الصفحة
 window.onload = function() {
   fetchTrips();
 };
 
+// 1. جلب قائمة الرحلات والتوصيلات المجدولة من الشيت
 function fetchTrips() {
   fetch(API_URL + "?action=getTrips")
-    .then(r => r.json())
+    .then(response => response.json())
     .then(data => {
       if (data.status === "success" && Array.isArray(data.data)) {
         allTrips = data.data;
         renderTrips(allTrips);
         populateTripDropdown(allTrips);
       } else {
-        showError("No active services configured.");
+        showError("No active services or trips configured.");
       }
     })
     .catch(error => {
-      console.error("Error:", error);
+      console.error("Connection Error:", error);
       showError("Failed to reach server. Please try again.");
     });
 }
 
+// دالة عرض رسائل الخطأ في الواجهة
 function showError(msg) {
-  document.getElementById("trips-container").innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #f87171; font-size: 16px; padding: 40px;">${msg}</p>`;
+  const container = document.getElementById("trips-container");
+  if (container) {
+    container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #f87171; font-size: 16px; padding: 40px; background: rgba(239, 68, 68, 0.1); border-radius: 16px;">${msg}</p>`;
+  }
 }
 
+// 2. عرض الكروت العصرية للرحلات
 function renderTrips(trips) {
   const container = document.getElementById("trips-container");
+  if (!container) return;
   container.innerHTML = "";
 
   if (!trips || trips.length === 0) {
@@ -40,9 +53,9 @@ function renderTrips(trips) {
 
   trips.forEach(trip => {
     const id = trip.Id || 1;
-    const title = trip.Title || "Scheduled Trip";
+    const title = trip.Title || "Scheduled Transfer";
     const pickup = trip.PickupLocation || "Airport";
-    const dropoff = trip.DropoffLocation || "Hotel Resort";
+    const dropoff = trip.DropoffLocation || "Resort";
     const price = trip.Price || "0";
     const description = trip.Description || "Reliable scheduled transfer service.";
 
@@ -57,7 +70,7 @@ function renderTrips(trips) {
           <p>${description}</p>
           <div class="card-footer">
             <div class="trip-price">$${price} <span style="font-size:12px; font-weight:normal; color:#94a3b8;">/ seat</span></div>
-            <button class="book-btn" onclick="openBookingModal(${id}, '${title}', ${price})">Book Now</button>
+            <button class="book-btn" onclick="openBookingModal(${id}, '${title.replace(/'/g, "\\'")}', ${price})">Book Now</button>
           </div>
         </div>
       </div>
@@ -65,10 +78,11 @@ function renderTrips(trips) {
   });
 }
 
+// 3. تصفية الرحلات حسب الفئة أو المكان
 function filterTrips(category) {
   document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-  if (event && event.currentTarget) {
-    event.currentTarget.classList.add('active');
+  if (window.event && window.event.currentTarget) {
+    window.event.currentTarget.classList.add('active');
   }
 
   if (category === 'all') {
@@ -77,28 +91,41 @@ function filterTrips(category) {
     const filtered = allTrips.filter(t => {
       const p = String(t.PickupLocation || "").toLowerCase();
       const d = String(t.DropoffLocation || "").toLowerCase();
+      const desc = String(t.Description || "").toLowerCase();
+      const title = String(t.Title || "").toLowerCase();
       const cat = category.toLowerCase();
-      return p.includes(cat) || d.includes(cat);
+
+      return p.includes(cat) || d.includes(cat) || desc.includes(cat) || title.includes(cat);
     });
     renderTrips(filtered);
   }
 }
 
+// 4. التحكم في النوافذ المنبثقة (Modals)
 function openBookingModal(id, title, price) {
-  document.getElementById("modal-trip-title").innerText = "Book: " + title;
-  document.getElementById("trip-title-input").value = id;
-  document.getElementById("booking-modal").setAttribute("data-price", price);
-  document.getElementById("booking-modal").style.display = "flex";
+  const modalTitle = document.getElementById("modal-trip-title");
+  const tripInput = document.getElementById("trip-title-input");
+  const modal = document.getElementById("booking-modal");
+
+  if (modalTitle) modalTitle.innerText = "Book: " + title;
+  if (tripInput) tripInput.value = id;
+  if (modal) {
+    modal.setAttribute("data-price", price);
+    modal.style.display = "flex";
+  }
 }
 
 function openLoginModal() { 
-  document.getElementById("login-modal").style.display = "flex"; 
+  const modal = document.getElementById("login-modal");
+  if (modal) modal.style.display = "flex"; 
 }
 
 function closeModal(id) { 
-  document.getElementById(id).style.display = "none"; 
+  const modal = document.getElementById(id);
+  if (modal) modal.style.display = "none"; 
 }
 
+// 5. إدارة تسجيل دخول الموظفين والأدمن
 function handleLogin(e) {
   e.preventDefault();
   const u = document.getElementById("loginUsername").value;
@@ -112,22 +139,37 @@ function handleLogin(e) {
         closeModal('login-modal');
         setupDashboard();
       } else {
-        alert("Invalid credentials.");
+        alert("Authentication failed: " + (res.message || "Invalid credentials"));
       }
     })
-    .catch(() => alert("Authentication failed."));
+    .catch(err => {
+      console.error(err);
+      alert("Authentication server unavailable. Check API deployment.");
+    });
 }
 
+// 6. تجهيز لوحة التحكم وحساب الأدوار
 function setupDashboard() {
-  document.getElementById("loginNavBtn").style.display = "none";
-  document.getElementById("logoutNavBtn").style.display = "inline-block";
-  document.getElementById("dashboard").style.display = "block";
-  document.getElementById("welcomeUser").innerText = `Welcome, ${currentUser.name} (${currentUser.role.toUpperCase()})`;
+  const loginBtn = document.getElementById("loginNavBtn");
+  const logoutBtn = document.getElementById("logoutNavBtn");
+  const dashboard = document.getElementById("dashboard");
+  const welcomeText = document.getElementById("welcomeUser");
+  const adminSummary = document.getElementById("adminSummary");
 
-  if (currentUser.role.toLowerCase() === "superadmin" || currentUser.role.toLowerCase() === "admin") {
-    document.getElementById("adminSummary").style.display = "flex";
-  } else {
-    document.getElementById("adminSummary").style.display = "none";
+  if (loginBtn) loginBtn.style.display = "none";
+  if (logoutBtn) logoutBtn.style.display = "inline-block";
+  if (dashboard) dashboard.style.display = "block";
+  if (welcomeText && currentUser) {
+    welcomeText.innerText = `Welcome, ${currentUser.name} (${String(currentUser.role).toUpperCase()})`;
+  }
+
+  if (adminSummary && currentUser) {
+    const role = String(currentUser.role).toLowerCase();
+    if (role === "superadmin" || role === "admin" || role === "companyadmin") {
+      adminSummary.style.display = "flex";
+    } else {
+      adminSummary.style.display = "none";
+    }
   }
 
   loadDashboardData();
@@ -137,6 +179,7 @@ function logout() {
   location.reload();
 }
 
+// 7. ملء خيارات القائمة المنسدلة في اللوحة
 function populateTripDropdown(trips) {
   const select = document.getElementById("dashTripFilter");
   if (!select) return;
@@ -146,50 +189,58 @@ function populateTripDropdown(trips) {
   });
 }
 
+// 8. جلب وعرض بيانات الحجوزات للتقارير
 function loadDashboardData() {
   fetch(`${API_URL}?action=getBookings`)
     .then(r => r.json())
     .then(res => {
       if (res.status === "success") {
         const tbody = document.getElementById("bookingsTableBody");
+        if (!tbody) return;
         tbody.innerHTML = "";
         let totalGuests = 0;
 
         res.data.forEach(b => {
-          totalGuests += parseInt(b.ReservedSeats || 1);
+          const seats = parseInt(b.ReservedSeats || b.guests || 1);
+          totalGuests += seats;
+          
+          const bookedDate = b.BookedAt ? new Date(b.BookedAt).toLocaleDateString() : new Date().toLocaleDateString();
+
           tbody.innerHTML += `
             <tr>
-              <td>${new Date(b.BookedAt).toLocaleDateString()}</td>
+              <td>${bookedDate}</td>
               <td>Passenger #${b.PassengerId || 'Guest'}</td>
               <td>+2010xxxxxxx</td>
-              <td>Trip #${b.TripId}</td>
-              <td>${new Date(b.BookedAt).toLocaleDateString()}</td>
-              <td>${b.ReservedSeats}</td>
-              <td>${b.BookingStatus}</td>
+              <td>Trip #${b.TripId || 'N/A'}</td>
+              <td>${bookedDate}</td>
+              <td>${seats}</td>
+              <td><span style="color: #34d399; font-weight: 600;">${b.BookingStatus || 'Confirmed'}</span></td>
             </tr>
           `;
         });
 
-        if (currentUser && (currentUser.role.toLowerCase() === "superadmin" || currentUser.role.toLowerCase() === "admin")) {
-          document.getElementById("totalBookings").innerText = res.data.length;
-          document.getElementById("totalGuests").innerText = totalGuests;
-        }
+        const totalBookingsElem = document.getElementById("totalBookings");
+        const totalGuestsElem = document.getElementById("totalGuests");
+        if (totalBookingsElem) totalBookingsElem.innerText = res.data.length;
+        if (totalGuestsElem) totalGuestsElem.innerText = totalGuests;
       }
     });
 }
 
+// 9. إرسال الحجز الجديد إلى الباك إند
 function submitBooking(e) {
   e.preventDefault();
   const tripId = document.getElementById("trip-title-input").value;
   const guests = document.getElementById("guests").value;
-  const unitPrice = parseFloat(document.getElementById("booking-modal").getAttribute("data-price") || 0);
+  const modal = document.getElementById("booking-modal");
+  const unitPrice = parseFloat(modal ? modal.getAttribute("data-price") : 0) || 0;
 
   const bookingData = {
     trip_id: tripId,
     guests: guests,
     total_amount: unitPrice * parseInt(guests),
     passenger_id: currentUser ? currentUser.accountId : 0,
-    notes: document.getElementById("notes").value
+    notes: document.getElementById("notes").value || ""
   };
 
   fetch(API_URL, {
@@ -198,8 +249,12 @@ function submitBooking(e) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bookingData)
   }).then(() => {
-    alert("Reservation Saved Successfully!");
+    alert("Reservation Request Sent Successfully!");
     closeModal('booking-modal');
-    document.getElementById("booking-form").reset();
+    const form = document.getElementById("booking-form");
+    if (form) form.reset();
+  }).catch(err => {
+    console.error(err);
+    alert("Error sending booking request.");
   });
 }
