@@ -1,27 +1,22 @@
 // =========================================================================
-// Re7lety Platform - Complete Integrated Frontend Logic
+// Re7lety Platform - Main Dynamic Logic with Maps, Limos & WhatsApp
 // =========================================================================
 
-// الرابط الجديد الخاص بك من خطوة Deployment الأخيرة
-const API_URL = "https://script.google.com/a/macros/marsa-alam-airport.com/s/AKfycbwr-LoCPIygEglH2Kvpo5l7sqRKtQm73ilrgBkiiBqhNZuyaxZVu9wD5D9wozB0xp-2Zg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwr-LoCPIygEglH2Kvpo5I7sqRKtQm73ilrgBkiiBqhNZuyaxZVu9wD5D9wozB0xp-2Zg/exec";
+const COMPANY_WHATSAPP = "201000000000"; // رقم واتساب الشركة لاستقبال الحجوزات
 
 let allTrips = [];
 let currentUser = null;
 
-// تشغيل جلب البيانات فور تحميل الصفحة
 window.onload = function() {
   fetchTrips();
 };
 
-// 1. جلب قائمة الرحلات والتوصيلات المجدولة بنظام طلب مقاوم للكاش والحظر
 function fetchTrips() {
   const url = `${API_URL}?action=getTrips&t=${new Date().getTime()}`;
   
   fetch(url, { method: "GET", redirect: "follow" })
-    .then(response => {
-      if (!response.ok) throw new Error("Network response was not ok");
-      return response.json();
-    })
+    .then(r => r.json())
     .then(data => {
       if (data && data.status === "success" && Array.isArray(data.data)) {
         allTrips = data.data;
@@ -31,21 +26,20 @@ function fetchTrips() {
         showError("No active services or trips found in spreadsheet.");
       }
     })
-    .catch(error => {
-      console.error("Connection Error:", error);
+    .catch(err => {
+      console.error("Connection Error:", err);
       showError("Failed to reach server. Please test your Google Apps Script Deployment.");
     });
 }
 
-// دالة إظهار التنبيهات في منطقة الكروت
 function showError(msg) {
   const container = document.getElementById("trips-container");
   if (container) {
-    container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #f87171; font-size: 16px; padding: 40px; background: rgba(239, 68, 68, 0.1); border-radius: 16px; border: 1px solid rgba(239, 68, 68, 0.2);">${msg}</p>`;
+    container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #f87171; font-size: 16px; padding: 40px;">${msg}</p>`;
   }
 }
 
-// 2. بناء وعرض كروت الرحلات والتوصيلات في index.html
+// بناء عرض كروت الليموزين الفاخرة ورابط الخرائط الجغرافي
 function renderTrips(trips) {
   const container = document.getElementById("trips-container");
   if (!container) return;
@@ -56,6 +50,9 @@ function renderTrips(trips) {
     return;
   }
 
+  // رابط صورة ليموزين وسائق وسلسلة ساحلية راقية تتماشى مع البحر الصحراوي
+  const luxuryLimoImg = "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=800&auto=format&fit=crop";
+
   trips.forEach(trip => {
     const id = trip.Id || 1;
     const title = trip.Title || "Scheduled Transfer";
@@ -64,11 +61,17 @@ function renderTrips(trips) {
     const price = trip.Price || "0";
     const description = trip.Description || "Reliable scheduled transfer service.";
 
+    // رابط خرائط جوجل الجغرافي لفتح خط السير تلقائياً
+    const routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(pickup)}&destination=${encodeURIComponent(dropoff)}`;
+
     container.innerHTML += `
       <div class="trip-card">
         <div class="card-img-wrapper">
           <span class="trip-tag">${pickup} &rarr; ${dropoff}</span>
-          <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957" alt="${title}">
+          <a href="${routeUrl}" target="_blank" class="map-btn-link" title="Open Google Maps Route">
+            <i class="fa-solid fa-map-location-dot"></i> View Route
+          </a>
+          <img src="${luxuryLimoImg}" alt="${title}">
         </div>
         <div class="trip-info">
           <h3>${title}</h3>
@@ -83,7 +86,6 @@ function renderTrips(trips) {
   });
 }
 
-// 3. الفلترة الديناميكية للكروت
 function filterTrips(category) {
   document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
   if (window.event && window.event.currentTarget) {
@@ -106,7 +108,6 @@ function filterTrips(category) {
   }
 }
 
-// 4. إدارة النوافذ المنبثقة (Modals)
 function openBookingModal(id, title, price) {
   const modalTitle = document.getElementById("modal-trip-title");
   const tripInput = document.getElementById("trip-title-input");
@@ -130,7 +131,6 @@ function closeModal(id) {
   if (modal) modal.style.display = "none"; 
 }
 
-// 5. تسجيل دخول الموظفين المقاوم للحظر
 function handleLogin(e) {
   e.preventDefault();
   const u = document.getElementById("loginUsername").value.trim();
@@ -151,11 +151,10 @@ function handleLogin(e) {
     })
     .catch(err => {
       console.error(err);
-      alert("Authentication server unavailable. Check API deployment.");
+      alert("Authentication server unavailable.");
     });
 }
 
-// 6. تهيئة لوحة التحكم
 function setupDashboard() {
   const loginBtn = document.getElementById("loginNavBtn");
   const logoutBtn = document.getElementById("logoutNavBtn");
@@ -174,8 +173,6 @@ function setupDashboard() {
     const role = String(currentUser.role).toLowerCase();
     if (role === "superadmin" || role === "admin" || role === "companyadmin") {
       adminSummary.style.display = "flex";
-    } else {
-      adminSummary.style.display = "none";
     }
   }
 
@@ -186,7 +183,6 @@ function logout() {
   location.reload();
 }
 
-// 7. خيارات الفلترة المنسدلة للوحة
 function populateTripDropdown(trips) {
   const select = document.getElementById("dashTripFilter");
   if (!select) return;
@@ -196,7 +192,7 @@ function populateTripDropdown(trips) {
   });
 }
 
-// 8. جلب بيانات الحجوزات للجدول
+// عرض البيانات الحقيقية بالكامل في اللوحة والتقرير
 function loadDashboardData() {
   const url = `${API_URL}?action=getBookings&t=${new Date().getTime()}`;
 
@@ -213,12 +209,15 @@ function loadDashboardData() {
           const seats = parseInt(b.ReservedSeats || b.guests || 1);
           totalGuests += seats;
           const bookedDate = b.BookedAt ? new Date(b.BookedAt).toLocaleDateString() : new Date().toLocaleDateString();
+          
+          const passengerName = b.PassengerName || b.passengername || (b.PassengerId ? 'Passenger #' + b.PassengerId : 'Guest');
+          const passengerPhone = b.PassengerPhone || b.passengerphone || 'N/A';
 
           tbody.innerHTML += `
             <tr>
               <td>${bookedDate}</td>
-              <td>Passenger #${b.PassengerId || 'Guest'}</td>
-              <td>+2010xxxxxxx</td>
+              <td>${passengerName}</td>
+              <td>${passengerPhone}</td>
               <td>Trip #${b.TripId || 'N/A'}</td>
               <td>${bookedDate}</td>
               <td>${seats}</td>
@@ -235,20 +234,27 @@ function loadDashboardData() {
     });
 }
 
-// 9. إرسال طلب حجز جديد إلى Google Sheet
+// معالجة الحجز وإرسال وتأكيد الرسالة عبر الواتساب تلقائياً
 function submitBooking(e) {
   e.preventDefault();
   const tripId = document.getElementById("trip-title-input").value;
   const guests = document.getElementById("guests").value;
+  const passengerName = document.getElementById("passenger-name").value;
+  const passengerPhone = document.getElementById("passenger-phone").value;
+  const notes = document.getElementById("notes").value || "None";
+  
   const modal = document.getElementById("booking-modal");
   const unitPrice = parseFloat(modal ? modal.getAttribute("data-price") : 0) || 0;
+  const totalAmount = unitPrice * parseInt(guests);
 
   const bookingData = {
     trip_id: tripId,
     guests: guests,
-    total_amount: unitPrice * parseInt(guests),
+    passenger_name: passengerName,
+    passenger_phone: passengerPhone,
+    total_amount: totalAmount,
     passenger_id: currentUser ? currentUser.accountId : 0,
-    notes: document.getElementById("notes").value || ""
+    notes: notes
   };
 
   fetch(API_URL, {
@@ -257,12 +263,23 @@ function submitBooking(e) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bookingData)
   }).then(() => {
-    alert("Reservation Request Sent Successfully!");
+    // فتح الواتساب بنص التأكيد المباشر
+    const waText = `*New Reservation Request - Re7lety*%0A` +
+                   `*Name:* ${encodeURIComponent(passengerName)}%0A` +
+                   `*Phone:* ${encodeURIComponent(passengerPhone)}%0A` +
+                   `*Trip Ref:* Trip #${tripId}%0A` +
+                   `*Passengers:* ${guests}%0A` +
+                   `*Total Price:* $${totalAmount}%0A` +
+                   `*Pickup Location / Notes:* ${encodeURIComponent(notes)}`;
+
+    window.open(`https://wa.me/${COMPANY_WHATSAPP}?text=${waText}`, '_blank');
+
     closeModal('booking-modal');
     const form = document.getElementById("booking-form");
     if (form) form.reset();
+    if (currentUser) loadDashboardData();
   }).catch(err => {
     console.error(err);
-    alert("Error sending booking request.");
+    alert("Error registering booking.");
   });
 }
