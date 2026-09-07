@@ -2,13 +2,13 @@
 // Re7lety Platform - Complete Integrated Frontend Logic
 // =========================================================================
 
-// ضع رابط الـ Web App الخاص بك هنا (تأكد أنه ينتهي بـ /exec وبدون مسافات)
-const API_URL = "https://script.google.com/macros/s/AKfycbwEUJdsuEmOvlBETHJVxGjYGOaLgWVbdnF_xKvS-zaeJV6gnHUNpwdlF-H-0URO9aneQQ/exec";
+// الرابط الجديد الخاص بك من خطوة Deployment الأخيرة
+const API_URL = "https://script.google.com/macros/s/AKfycbwr-LoCPIygEglH2Kvpo5I7sqRKtQm73ilrgBkiiBqhNZuyaxZVu9wD5D9wozB0xp-2Zg/exec";
 
 let allTrips = [];
 let currentUser = null;
 
-// تشغيل جلب البيانات فور تحميل الواجهة
+// تشغيل جلب البيانات فور تحميل الصفحة
 window.onload = function() {
   fetchTrips();
 };
@@ -106,7 +106,7 @@ function filterTrips(category) {
   }
 }
 
-// 4. إدارات النوافذ المنبثقة (Modals)
+// 4. إدارة النوافذ المنبثقة (Modals)
 function openBookingModal(id, title, price) {
   const modalTitle = document.getElementById("modal-trip-title");
   const tripInput = document.getElementById("trip-title-input");
