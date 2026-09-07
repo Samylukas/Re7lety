@@ -1,4 +1,3 @@
-// ضع رابط Web App الجديد هنا
 const API_URL = "ضع_الرابط_الجديد_هنا";
 
 let allTrips = [];
@@ -17,12 +16,12 @@ function fetchTrips() {
         renderTrips(allTrips);
         populateTripDropdown(allTrips);
       } else {
-        showError("No services configured yet.");
+        showError("No active services configured.");
       }
     })
     .catch(error => {
       console.error("Error:", error);
-      showError("Server response error. Please try again.");
+      showError("Failed to reach server. Please try again.");
     });
 }
 
@@ -40,24 +39,25 @@ function renderTrips(trips) {
   }
 
   trips.forEach(trip => {
-    const title = trip.title || trip.Title || "Excursions & Transfers";
-    const category = trip.category || trip.Category || "Services";
-    const price = trip.price || trip.Price || "0";
-    const image = trip.image || trip.Image || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957";
-    const description = trip.description || trip.Description || "Reliable service in Marsa Alam & El Quseir.";
+    const id = trip.Id || 1;
+    const title = trip.Title || "Scheduled Trip";
+    const pickup = trip.PickupLocation || "Airport";
+    const dropoff = trip.DropoffLocation || "Hotel Resort";
+    const price = trip.Price || "0";
+    const description = trip.Description || "Reliable scheduled transfer service.";
 
     container.innerHTML += `
       <div class="trip-card">
         <div class="card-img-wrapper">
-          <span class="trip-tag">${category}</span>
-          <img src="${image}" alt="${title}">
+          <span class="trip-tag">${pickup} &rarr; ${dropoff}</span>
+          <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957" alt="${title}">
         </div>
         <div class="trip-info">
           <h3>${title}</h3>
           <p>${description}</p>
           <div class="card-footer">
-            <div class="trip-price">$${price} <span style="font-size:12px; font-weight:normal; color:#94a3b8;">/ service</span></div>
-            <button class="book-btn" onclick="openBookingModal('${title}')">Book Now</button>
+            <div class="trip-price">$${price} <span style="font-size:12px; font-weight:normal; color:#94a3b8;">/ seat</span></div>
+            <button class="book-btn" onclick="openBookingModal(${id}, '${title}', ${price})">Book Now</button>
           </div>
         </div>
       </div>
@@ -75,17 +75,19 @@ function filterTrips(category) {
     renderTrips(allTrips);
   } else {
     const filtered = allTrips.filter(t => {
-      const c = String(t.category || t.Category || "").toLowerCase().trim();
-      const target = category.toLowerCase().trim();
-      return c === target || c.includes(target);
+      const p = String(t.PickupLocation || "").toLowerCase();
+      const d = String(t.DropoffLocation || "").toLowerCase();
+      const cat = category.toLowerCase();
+      return p.includes(cat) || d.includes(cat);
     });
     renderTrips(filtered);
   }
 }
 
-function openBookingModal(title) {
+function openBookingModal(id, title, price) {
   document.getElementById("modal-trip-title").innerText = "Book: " + title;
-  document.getElementById("trip-title-input").value = title;
+  document.getElementById("trip-title-input").value = id;
+  document.getElementById("booking-modal").setAttribute("data-price", price);
   document.getElementById("booking-modal").style.display = "flex";
 }
 
@@ -110,7 +112,7 @@ function handleLogin(e) {
         closeModal('login-modal');
         setupDashboard();
       } else {
-        alert("Invalid Username or Password.");
+        alert("Invalid credentials.");
       }
     })
     .catch(() => alert("Authentication failed."));
@@ -122,7 +124,7 @@ function setupDashboard() {
   document.getElementById("dashboard").style.display = "block";
   document.getElementById("welcomeUser").innerText = `Welcome, ${currentUser.name} (${currentUser.role.toUpperCase()})`;
 
-  if (currentUser.role === "admin") {
+  if (currentUser.role.toLowerCase() === "superadmin" || currentUser.role.toLowerCase() === "admin") {
     document.getElementById("adminSummary").style.display = "flex";
   } else {
     document.getElementById("adminSummary").style.display = "none";
@@ -140,15 +142,12 @@ function populateTripDropdown(trips) {
   if (!select) return;
   select.innerHTML = '<option value="">All Services</option>';
   trips.forEach(t => {
-    select.innerHTML += `<option value="${t.title}">${t.title}</option>`;
+    select.innerHTML += `<option value="${t.Id}">${t.Title}</option>`;
   });
 }
 
 function loadDashboardData() {
-  const date = document.getElementById("dashDateFilter").value;
-  const trip = document.getElementById("dashTripFilter").value;
-
-  fetch(`${API_URL}?action=getBookings&date=${date}&trip=${encodeURIComponent(trip)}`)
+  fetch(`${API_URL}?action=getBookings`)
     .then(r => r.json())
     .then(res => {
       if (res.status === "success") {
@@ -157,21 +156,21 @@ function loadDashboardData() {
         let totalGuests = 0;
 
         res.data.forEach(b => {
-          totalGuests += parseInt(b.Guests || 1);
+          totalGuests += parseInt(b.ReservedSeats || 1);
           tbody.innerHTML += `
             <tr>
-              <td>${new Date(b.Date_Submitted).toLocaleDateString()}</td>
-              <td>${b.Name}</td>
-              <td>${b.Phone}</td>
-              <td>${b.Trip_Title}</td>
-              <td>${b.Trip_Date}</td>
-              <td>${b.Guests}</td>
-              <td>${b.Notes}</td>
+              <td>${new Date(b.BookedAt).toLocaleDateString()}</td>
+              <td>Passenger #${b.PassengerId || 'Guest'}</td>
+              <td>+2010xxxxxxx</td>
+              <td>Trip #${b.TripId}</td>
+              <td>${new Date(b.BookedAt).toLocaleDateString()}</td>
+              <td>${b.ReservedSeats}</td>
+              <td>${b.BookingStatus}</td>
             </tr>
           `;
         });
 
-        if (currentUser && currentUser.role === "admin") {
+        if (currentUser && (currentUser.role.toLowerCase() === "superadmin" || currentUser.role.toLowerCase() === "admin")) {
           document.getElementById("totalBookings").innerText = res.data.length;
           document.getElementById("totalGuests").innerText = totalGuests;
         }
@@ -181,12 +180,15 @@ function loadDashboardData() {
 
 function submitBooking(e) {
   e.preventDefault();
+  const tripId = document.getElementById("trip-title-input").value;
+  const guests = document.getElementById("guests").value;
+  const unitPrice = parseFloat(document.getElementById("booking-modal").getAttribute("data-price") || 0);
+
   const bookingData = {
-    trip_title: document.getElementById("trip-title-input").value,
-    name: document.getElementById("name").value,
-    phone: document.getElementById("phone").value,
-    trip_date: document.getElementById("trip-date").value,
-    guests: document.getElementById("guests").value,
+    trip_id: tripId,
+    guests: guests,
+    total_amount: unitPrice * parseInt(guests),
+    passenger_id: currentUser ? currentUser.accountId : 0,
     notes: document.getElementById("notes").value
   };
 
@@ -196,7 +198,7 @@ function submitBooking(e) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bookingData)
   }).then(() => {
-    alert("Reservation Request Sent Successfully!");
+    alert("Reservation Saved Successfully!");
     closeModal('booking-modal');
     document.getElementById("booking-form").reset();
   });
