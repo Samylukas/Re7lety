@@ -3,7 +3,7 @@
 // =========================================================================
 
 // الرابط الجديد الخاص بك من خطوة Deployment الأخيرة
-const API_URL = "https://script.google.com/macros/s/AKfycbwr-LoCPIygEglH2Kvpo5I7sqRKtQm73ilrgBkiiBqhNZuyaxZVu9wD5D9wozB0xp-2Zg/exec";
+const API_URL = "AKfycbwr-LoCPIygEglH2Kvpo5l7sqRKtQm73ilrgBkiiBqhNZuyaxZVu9wD5D9wozB0xp-2Zg";
 
 let allTrips = [];
 let currentUser = null;
