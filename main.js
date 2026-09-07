@@ -3,7 +3,7 @@
 // =========================================================================
 
 // ضع رابط الـ Web App الخاص بك هنا
-const API_URL = "https://script.google.com/macros/s/AKfycbwEUJdsuEmOvlBETHJVxGjYGOaLgWVbdnF_xKvS-zaeJV6gnHUNpwdlF-H-0URO9aneQQ/exec";
+const API_URL = "AKfycbwEUJdsuEmOvIBETHJVxGjYGOaLgWVbdnF_xKvS-zaeJV6gnHUNpwdlF-H-0URO9aneQQ";
 
 let allTrips = [];
 let currentUser = null;
