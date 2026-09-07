@@ -1,46 +1,51 @@
 // =========================================================================
-// Re7lety Platform - Frontend Integration Logic
+// Re7lety Platform - Complete Integrated Frontend Logic
 // =========================================================================
 
-// ضع رابط الـ Web App الخاص بك هنا
-const API_URL = "AKfycbwEUJdsuEmOvIBETHJVxGjYGOaLgWVbdnF_xKvS-zaeJV6gnHUNpwdlF-H-0URO9aneQQ";
+// ضع رابط الـ Web App الخاص بك هنا (تأكد أنه ينتهي بـ /exec وبدون مسافات)
+const API_URL = "https://script.google.com/macros/s/AKfycbwEUJdsuEmOvlBETHJVxGjYGOaLgWVbdnF_xKvS-zaeJV6gnHUNpwdlF-H-0URO9aneQQ/exec";
 
 let allTrips = [];
 let currentUser = null;
 
-// تشغيل النظام فور تحميل الصفحة
+// تشغيل جلب البيانات فور تحميل الواجهة
 window.onload = function() {
   fetchTrips();
 };
 
-// 1. جلب قائمة الرحلات والتوصيلات المجدولة من الشيت
+// 1. جلب قائمة الرحلات والتوصيلات المجدولة بنظام طلب مقاوم للكاش والحظر
 function fetchTrips() {
-  fetch(API_URL + "?action=getTrips")
-    .then(response => response.json())
+  const url = `${API_URL}?action=getTrips&t=${new Date().getTime()}`;
+  
+  fetch(url, { method: "GET", redirect: "follow" })
+    .then(response => {
+      if (!response.ok) throw new Error("Network response was not ok");
+      return response.json();
+    })
     .then(data => {
-      if (data.status === "success" && Array.isArray(data.data)) {
+      if (data && data.status === "success" && Array.isArray(data.data)) {
         allTrips = data.data;
         renderTrips(allTrips);
         populateTripDropdown(allTrips);
       } else {
-        showError("No active services or trips configured.");
+        showError("No active services or trips found in spreadsheet.");
       }
     })
     .catch(error => {
       console.error("Connection Error:", error);
-      showError("Failed to reach server. Please try again.");
+      showError("Failed to reach server. Please test your Google Apps Script Deployment.");
     });
 }
 
-// دالة عرض رسائل الخطأ في الواجهة
+// دالة إظهار التنبيهات في منطقة الكروت
 function showError(msg) {
   const container = document.getElementById("trips-container");
   if (container) {
-    container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #f87171; font-size: 16px; padding: 40px; background: rgba(239, 68, 68, 0.1); border-radius: 16px;">${msg}</p>`;
+    container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #f87171; font-size: 16px; padding: 40px; background: rgba(239, 68, 68, 0.1); border-radius: 16px; border: 1px solid rgba(239, 68, 68, 0.2);">${msg}</p>`;
   }
 }
 
-// 2. عرض الكروت العصرية للرحلات
+// 2. بناء وعرض كروت الرحلات والتوصيلات في index.html
 function renderTrips(trips) {
   const container = document.getElementById("trips-container");
   if (!container) return;
@@ -78,7 +83,7 @@ function renderTrips(trips) {
   });
 }
 
-// 3. تصفية الرحلات حسب الفئة أو المكان
+// 3. الفلترة الديناميكية للكروت
 function filterTrips(category) {
   document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
   if (window.event && window.event.currentTarget) {
@@ -101,7 +106,7 @@ function filterTrips(category) {
   }
 }
 
-// 4. التحكم في النوافذ المنبثقة (Modals)
+// 4. إدارات النوافذ المنبثقة (Modals)
 function openBookingModal(id, title, price) {
   const modalTitle = document.getElementById("modal-trip-title");
   const tripInput = document.getElementById("trip-title-input");
@@ -125,16 +130,18 @@ function closeModal(id) {
   if (modal) modal.style.display = "none"; 
 }
 
-// 5. إدارة تسجيل دخول الموظفين والأدمن
+// 5. تسجيل دخول الموظفين المقاوم للحظر
 function handleLogin(e) {
   e.preventDefault();
-  const u = document.getElementById("loginUsername").value;
-  const p = document.getElementById("loginPassword").value;
+  const u = document.getElementById("loginUsername").value.trim();
+  const p = document.getElementById("loginPassword").value.trim();
 
-  fetch(`${API_URL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`)
+  const url = `${API_URL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}&t=${new Date().getTime()}`;
+
+  fetch(url, { method: "GET", redirect: "follow" })
     .then(r => r.json())
     .then(res => {
-      if (res.status === "success") {
+      if (res && res.status === "success") {
         currentUser = res;
         closeModal('login-modal');
         setupDashboard();
@@ -148,7 +155,7 @@ function handleLogin(e) {
     });
 }
 
-// 6. تجهيز لوحة التحكم وحساب الأدوار
+// 6. تهيئة لوحة التحكم
 function setupDashboard() {
   const loginBtn = document.getElementById("loginNavBtn");
   const logoutBtn = document.getElementById("logoutNavBtn");
@@ -179,7 +186,7 @@ function logout() {
   location.reload();
 }
 
-// 7. ملء خيارات القائمة المنسدلة في اللوحة
+// 7. خيارات الفلترة المنسدلة للوحة
 function populateTripDropdown(trips) {
   const select = document.getElementById("dashTripFilter");
   if (!select) return;
@@ -189,12 +196,14 @@ function populateTripDropdown(trips) {
   });
 }
 
-// 8. جلب وعرض بيانات الحجوزات للتقارير
+// 8. جلب بيانات الحجوزات للجدول
 function loadDashboardData() {
-  fetch(`${API_URL}?action=getBookings`)
+  const url = `${API_URL}?action=getBookings&t=${new Date().getTime()}`;
+
+  fetch(url, { method: "GET", redirect: "follow" })
     .then(r => r.json())
     .then(res => {
-      if (res.status === "success") {
+      if (res && res.status === "success") {
         const tbody = document.getElementById("bookingsTableBody");
         if (!tbody) return;
         tbody.innerHTML = "";
@@ -203,7 +212,6 @@ function loadDashboardData() {
         res.data.forEach(b => {
           const seats = parseInt(b.ReservedSeats || b.guests || 1);
           totalGuests += seats;
-          
           const bookedDate = b.BookedAt ? new Date(b.BookedAt).toLocaleDateString() : new Date().toLocaleDateString();
 
           tbody.innerHTML += `
@@ -227,7 +235,7 @@ function loadDashboardData() {
     });
 }
 
-// 9. إرسال الحجز الجديد إلى الباك إند
+// 9. إرسال طلب حجز جديد إلى Google Sheet
 function submitBooking(e) {
   e.preventDefault();
   const tripId = document.getElementById("trip-title-input").value;
